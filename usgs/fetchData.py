@@ -6,6 +6,8 @@ import sys
 import urllib2
 import boto.rds
 from lib.config import config
+from lib.constants import constants
+import dateutil.parser
 import MySQLdb
 
 __package__ = "usgs.fetchData"
@@ -18,7 +20,6 @@ db = MySQLdb.connect(
 )
 
 dbCursor = db.cursor() 
-
 
 dbCursor.execute("SELECT locationId,usgsSiteId FROM Location WHERE isActive=1;")
 usgsSiteIdToLocationId = {}
@@ -56,7 +57,6 @@ def buildURL( baseURL, params ):
 
 apiParams = {}
 apiParams['format'] = config['usgs']['fetchFormat']
-#apiParams['siteType'] = 'ST'
 apiParams['period'] = config['usgs']['defaultFetchPeriod']
 apiParams['parameterCd'] = parameterCds
 apiParams['sites'] = sites
@@ -82,27 +82,39 @@ for timeSeriesSet in timeSeriesSets:
   valueSet = values[0]['value']
   for value in valueSet:
     usgsDatum = {}
-    usgsDatum['dateTime'] = value['dateTime']
+    usgsDateTime = value['dateTime']
+    mysqlFormattedDateTime = dateutil.parser.parse(usgsDateTime).strftime(constants['mysqlDateTimeFormat'])
+    usgsDatum['localDateTime'] = mysqlFormattedDateTime
     usgsDatum['value'] = value['value']
     usgsDatum['locationId'] = locationId
     usgsDatum['paramId'] = paramId
     usgsData.append(usgsDatum)
 
-query = 'INSERT INTO usgsData (dateTime,locationId,paramId,value) VALUES '
-first = True
+count = 0
+batchSize = 100
+
+queryStartString = 'INSERT INTO usgsData (localDateTime,locationId,paramId,value) VALUES '
+queryEndString = ' ON DUPLICATE KEY UPDATE value=VALUES(value);'
+
+queryValues = ''
 for usgsDatum in usgsData:
-  if not first:
-    query += ','
-  query += '('
-  query += '"' + usgsDatum['dateTime'] + '"'
-  query += ',' + usgsDatum['locationId']
-  query += ',' + usgsDatum['paramId']
-  query += ',' + usgsDatum['value']
-  query += ')'
-  first = False
-  break
+  if queryValues != '':
+    queryValues += ','
+  queryValues += '('
+  queryValues += '"' + usgsDatum['localDateTime'] + '"'
+  queryValues += ',' + usgsDatum['locationId']
+  queryValues += ',' + usgsDatum['paramId']
+  queryValues += ',' + usgsDatum['value']
+  queryValues += ')'
+  count += 1
+  if ( ( ( count % batchSize ) == 0 ) or ( count == len(usgsData) ) ):
+    query = queryStartString + queryValues + queryEndString
+    #pprint(query)
+    queryValues = ''
+    try:
+      dbCursor.execute( query )
+      db.commit()
+    except:
+      db.rollback()
 
-query += ' ON DUPLICATE KEY UPDATE value=VALUES(value);'
-
-pprint(query)
-#dbCursor.execute( query )
+print('Done!')

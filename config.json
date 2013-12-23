@@ -9,7 +9,7 @@
     }
   , "usgs": {
         "apiBaseURL": "http://waterservices.usgs.gov/nwis/iv/"
-      , "defaultFetchPeriod": "P1D"
+      , "defaultFetchPeriod": "P10D"
       , "fetchFormat": "json"
     }
 }
