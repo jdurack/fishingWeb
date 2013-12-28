@@ -1,0 +1,22 @@
+{
+  "name": "fishing",
+  "version": "0.0.1",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-uglify": "~0.2.7"
+  },
+  "dependencies": {
+    "logfmt": "~0.18.1",
+    "express": "~3.4.7"
+  },
+  "description": "ERROR: No README data found!",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "engines": {
+    "node": "0.10.x"
+  }
+}

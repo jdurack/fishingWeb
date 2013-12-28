@@ -106,7 +106,7 @@ for usgsDatum in usgsData:
   queryValues += ',' + usgsDatum['paramId']
   queryValues += ',' + usgsDatum['value']
   queryValues += ')'
-  count += 1
+  count += 100
   if ( ( ( count % batchSize ) == 0 ) or ( count == len(usgsData) ) ):
     query = queryStartString + queryValues + queryEndString
     #pprint(query)
