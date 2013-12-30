@@ -1,0 +1,1 @@
+console.log 'stub 5'

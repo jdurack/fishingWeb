@@ -2,23 +2,31 @@ module.exports = (grunt) =>
 
   grunt.initConfig
     pkg: grunt.file.readJSON 'package.json'
+    concat:
+      vendor:
+        src: [
+            'vendor/js/jquery.min.js'
+          , 'vendor/js/underscore.min.js'
+          , 'vendor/js/backbone.min.js'
+        ]
+        dest: 'public/js/vendor.js'
     coffee:
-      #expand: true
-      cwd: 'bb'
-      src: ['**/*.coffee']
-      dest: 'public'
-      ext: '.js'
-    uglify:
-      build:
-        src: 'js/bb/<%= pkg.name %>.js'
-        dest: 'js/bb/<%= pkg.name %>.min.js'
+      bb:
+        src: ['bb/**.coffee']
+        dest: 'public/js/app.js'
+      node:
+        expand: true
+        cwd: "nodeCoffee"
+        src: ["**/*.coffee"]
+        dest: "nodeJS"
+        ext: ".js"
     watch:
-      app:
-        files: 'bb/**/*.coffee'
-        tasks: ['coffee']
+      coffee:
+        files: '**/*.coffee'
+        tasks: ['coffee:bb','coffee:node']
 
   grunt.loadNpmTasks 'grunt-contrib-concat'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-watch'
 
-  grunt.registerTask 'default', ['coffee']
+  grunt.registerTask 'default', ['concat:vendor','watch']
