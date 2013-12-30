@@ -1,26 +1,41 @@
 (function() {
-  var app, express, logfmt, port;
+  var appInitUtils, config, constants, express, init, initActions, logger, routeAPI,
+    _this = this;
 
   express = require('express');
 
-  logfmt = require('logfmt');
+  routeAPI = require('./route/api');
 
-  app = express();
+  config = require('./config');
 
-  console.log('dirName: ' + __dirname);
+  constants = require('./constants');
 
-  app.use(logfmt.requestLogger());
+  appInitUtils = require('./lib/appInitUtils');
 
-  app.use(express["static"](__dirname + '/../public'));
+  logger = require('./lib/logger');
 
-  app.get('/', function(req, res) {
-    return res.sendfile('public/view/main.html');
-  });
+  initActions = [constants.initAction.DB_CONNECT];
 
-  port = process.env.PORT || 8080;
+  init = function() {
+    var app, listenPort;
+    app = express();
+    app.use(logfmt.requestLogger());
+    app.use(express["static"](__dirname + '/../public'));
+    app.get('/', function(req, res) {
+      return res.sendfile('public/view/main.html');
+    });
+    app.get('/api/reportData', function(req, res) {
+      return routeAPI.reportData(req, res);
+    });
+    app.get('/api/location', function(req, res) {
+      return routeAPI.location(req, res);
+    });
+    listenPort = config.listenPort;
+    return app.listen(listenPort, function() {
+      return logger.log(['Listening on ' + listenPort]);
+    });
+  };
 
-  app.listen(port, function() {
-    return console.log('Listening on ' + port);
-  });
+  appInitUtils.init(initActions, init);
 
 }).call(this);

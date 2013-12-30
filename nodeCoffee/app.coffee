@@ -1,16 +1,32 @@
 express = require 'express'
-logfmt = require 'logfmt'
+routeAPI = require './route/api'
+config = require './config'
+constants = require './constants'
+appInitUtils = require './lib/appInitUtils'
+logger = require './lib/logger'
 
-app = express()
+initActions = [
+  constants.initAction.DB_CONNECT
+]
 
-console.log 'dirName: ' + __dirname
+init = () =>
 
-app.use logfmt.requestLogger()
-app.use express.static(__dirname + '/../public')
+  app = express()
 
-app.get '/', (req, res) ->
-  res.sendfile 'public/view/main.html'
+  app.use logfmt.requestLogger()
+  app.use express.static(__dirname + '/../public')
 
-port = process.env.PORT || 8080
-app.listen port, () ->
-  console.log 'Listening on ' + port
+  app.get '/', (req, res) ->
+    res.sendfile 'public/view/main.html'
+
+  app.get '/api/reportData', (req, res) ->
+    routeAPI.reportData req, res
+
+  app.get '/api/location', (req, res) ->
+    routeAPI.location req, res 
+
+  listenPort = config.listenPort
+  app.listen listenPort, () ->
+    logger.log ['Listening on ' + listenPort]
+
+appInitUtils.init initActions, init

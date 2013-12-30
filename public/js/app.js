@@ -35,7 +35,10 @@
 
 (function() {
   Fishing.Constants = {
-    'some': 'thing'
+    api: {
+      domain: 'localhost',
+      port: 8080
+    }
   };
 
 }).call(this);
@@ -248,16 +251,45 @@
     function Report() {
       this.fetchLocationData = __bind(this.fetchLocationData, this);
       this.postRender = __bind(this.postRender, this);
+      this.postInitialize = __bind(this.postInitialize, this);
       _ref = Report.__super__.constructor.apply(this, arguments);
       return _ref;
     }
+
+    Report.prototype.location = null;
+
+    Report.prototype.reportData = null;
+
+    Report.prototype.postInitialize = function() {
+      var location;
+      return location = new Fishing.Model.Location();
+    };
 
     Report.prototype.postRender = function() {
       return this.fetchLocationData();
     };
 
     Report.prototype.fetchLocationData = function() {
-      return console.log('fetching data for locationId: ' + this.locationId);
+      var _this = this;
+      console.log('fetching data for locationId: ' + this.locationId);
+      $.ajax({
+        url: '/api/reportData',
+        data: {
+          locationId: this.locationId
+        },
+        success: function(response) {
+          return console.log('success, response: ', response);
+        }
+      });
+      return $.ajax({
+        url: '/api/location',
+        data: {
+          locationId: this.locationId
+        },
+        success: function(response) {
+          return location.set(response);
+        }
+      });
     };
 
     return Report;

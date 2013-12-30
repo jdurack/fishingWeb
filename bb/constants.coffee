@@ -1,2 +1,4 @@
 Fishing.Constants =
-  'some': 'thing'
+  api:
+    domain: 'localhost'
+    port: 8080
