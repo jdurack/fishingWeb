@@ -7,12 +7,14 @@
 
   app = express();
 
+  console.log('dirName: ' + __dirname);
+
   app.use(logfmt.requestLogger());
 
-  app.use(express["static"](__dirname + '/public'));
+  app.use(express["static"](__dirname + '/../public'));
 
   app.get('/', function(req, res) {
-    return res.sendfile('public/views/main.html');
+    return res.sendfile('public/view/main.html');
   });
 
   port = process.env.PORT || 8080;

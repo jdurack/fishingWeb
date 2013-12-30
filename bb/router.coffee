@@ -1,10 +1,29 @@
-FishingRouter = Backbone.Router.extend
-  routes:
-    "help":                 "help"
-    "search/:query":        "search"
-    "search/:query/p:page": "search"
+class Fishing.Router extends Backbone.Router
 
-  help: () =>
+  mainLayout: null
+
+  routes:
+    '': 'default'
+    'report/:locationId': 'report'
+
+  default: () =>
+    @renderPage 'home'
     
-  search: (query, page) =>
+  report: (locationId) =>
+    @renderPage 'report',
+      locationId: locationId
+
+  setupMainLayout: =>
+    if not @mainLayout
+      @mainLayout = new Fishing.View.MainLayout
+        el: $('#fishingApp')
+      @mainLayout.name = 'mainLayout'
     
+  renderPage: (page, data) =>
+    @setupMainLayout()
+    @mainLayout.teardownSubViews()
+    @mainLayout.addSubViewByDefinition
+      name: page
+      elSelector: '#fishingAppContent'
+      , data
+    @mainLayout.render()

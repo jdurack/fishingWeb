@@ -1,0 +1,2 @@
+Fishing.Constants =
+  'some': 'thing'

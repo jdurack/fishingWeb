@@ -1,0 +1,1 @@
+class Fishing.View.MainLayout extends Fishing.View.Base

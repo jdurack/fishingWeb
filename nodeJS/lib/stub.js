@@ -1,4 +1,4 @@
 (function() {
-  console.log('stub 5');
+  console.log('stub 7');
 
 }).call(this);
