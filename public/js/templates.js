@@ -25,7 +25,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.appName) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = (depth0 && depth0.appName); stack1 = typeof stack1 === functionType ? stack1.call(depth0, {hash:{},data:data}) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</b></a>\n    </div>\n    <div class=\"navbar-collapse collapse\">\n      <ul class=\"nav navbar-nav\">\n        <li class=\"active\"><a href=\"#\" class=\"smoothScroll\">Some link</a></li>\n      </ul>\n    </div><!--/.nav-collapse -->\n  </div>\n</div>\n\n<div class=\"container\">\n  <div class=\"row centered\">\n\n    <div id='fishingAppContent'></div>\n\n  </div>\n</div>\n\n<div id=\"c\">\n  <div class=\"container\">\n    <p>";
+    + "</b></a>\n    </div>\n    <div class=\"navbar-collapse collapse\">\n      <ul class=\"nav navbar-nav\">\n        <li class=\"active\"><a href=\"#\">Some link</a></li>\n      </ul>\n    </div><!--/.nav-collapse -->\n  </div>\n</div>\n\n<div class=\"container\">\n  <div class=\"row centered\">\n\n    <div id='fishingAppContent'></div>\n\n  </div>\n</div>\n\n<div class='footer'>\n  <div class=\"container\">\n    <p>";
   if (stack1 = helpers.appName) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = (depth0 && depth0.appName); stack1 = typeof stack1 === functionType ? stack1.call(depth0, {hash:{},data:data}) : stack1; }
   buffer += escapeExpression(stack1)

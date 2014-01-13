@@ -3,7 +3,7 @@ module.exports = (grunt) =>
   grunt.initConfig
     pkg: grunt.file.readJSON 'package.json'
     concat:
-      vendor:
+      vendorJS:
         src: [
           'vendor/js/jquery.min.js'
           'vendor/js/underscore.min.js'
@@ -13,8 +13,11 @@ module.exports = (grunt) =>
           'vendor/js/googleMaps.min.js'
         ]
         dest: 'public/js/vendor.js'
+      vendorCSS:
+        src: ['vendor/css/*.css']
+        dest: 'public/css/vendor.css'
     uglify:
-      vendor:
+      vendorJS:
         files:
           'public/js/vendor.min.js': 'public/js/vendor.js'
     coffee:
@@ -69,11 +72,12 @@ module.exports = (grunt) =>
   grunt.loadNpmTasks 'grunt-contrib-watch'
 
   grunt.registerTask 'default', [
-      'concat:vendor'
-    , 'uglify:vendor'
-    , 'coffee:bb'
-    , 'coffee:node'
-    , 'handlebars:templates'
-    , 'less'
-    , 'watch'
+    'concat:vendorJS'
+    'concat:vendorCSS'
+    'uglify:vendorJS'
+    'coffee:bb'
+    'coffee:node'
+    'handlebars:templates'
+    'less'
+    'watch'
   ]
