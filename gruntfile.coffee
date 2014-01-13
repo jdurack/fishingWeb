@@ -14,7 +14,7 @@ module.exports = (grunt) =>
         ]
         dest: 'public/js/vendor.js'
       vendorCSS:
-        src: ['vendor/css/*.css']
+        src: ['vendor/css/**/*.css']
         dest: 'public/css/vendor.css'
     uglify:
       vendorJS:
