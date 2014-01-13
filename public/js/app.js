@@ -1,26 +1,222 @@
 (function() {
+  var googleChartsLoaded, initApp, windowLoaded,
+    _this = this;
+
   window.Fishing = {
     Collection: {},
     Decorator: {},
     Model: {},
+    Helper: {},
     Template: {},
-    View: {}
+    View: {},
+    Global: {}
+  };
+
+  windowLoaded = false;
+
+  googleChartsLoaded = false;
+
+  initApp = function() {
+    Fishing.Global.router = new Fishing.Router();
+    return Backbone.history.start();
   };
 
   $(window).load(function() {
-    var router;
-    router = new Fishing.Router();
-    return Backbone.history.start();
+    windowLoaded = true;
+    if (windowLoaded && googleChartsLoaded) {
+      return initApp();
+    }
+  });
+
+  google.load('visualization', '1', {
+    packages: ['corechart']
+  });
+
+  google.setOnLoadCallback(function() {
+    googleChartsLoaded = true;
+    if (windowLoaded && googleChartsLoaded) {
+      return initApp();
+    }
   });
 
 }).call(this);
 
 (function() {
-  Fishing.Util = {
-    capitalize: function(s) {
-      return s[0].toUpperCase() + s.slice(1);
+  Fishing.Constants = {
+    appName: 'Fishwin',
+    loggingOn: true,
+    api: {
+      domain: 'localhost',
+      port: 8080
     },
-    stringToFunction: function(str) {
+    paramIds: {
+      flowRate: 1,
+      gageHeight: 2
+    },
+    googleAPIKey: 'AIzaSyAVteFYmf-gg2-gj5tta6hAxiTO823Fyhc',
+    homeMap: {
+      center: {
+        latitude: 40.440546,
+        longitude: -122.376709
+      },
+      zoomLevel: 7
+    }
+  };
+
+  Fishing.Data = {
+    locations: {}
+  };
+
+}).call(this);
+
+(function() {
+  var Fishing_Helper_APIUtils,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Fishing_Helper_APIUtils = (function() {
+    function Fishing_Helper_APIUtils() {
+      this.getLocations = __bind(this.getLocations, this);
+      this.getLocation = __bind(this.getLocation, this);
+      this.fetchData = __bind(this.fetchData, this);
+    }
+
+    Fishing_Helper_APIUtils.prototype.globalData = {};
+
+    Fishing_Helper_APIUtils.prototype.locationsFetching = false;
+
+    Fishing_Helper_APIUtils.prototype.locationsFetched = false;
+
+    Fishing_Helper_APIUtils.prototype.locationsFetchedCallbacks = [];
+
+    Fishing_Helper_APIUtils.prototype.fetchData = function(endpoint, data, cb) {
+      var url,
+        _this = this;
+      url = '/api/' + endpoint;
+      data = data || {};
+      return $.ajax({
+        url: url,
+        data: data,
+        complete: function(response, responseStatus) {
+          var e;
+          data = {};
+          if (responseStatus === 'success') {
+            try {
+              data = JSON.parse(response.responseText);
+            } catch (_error) {
+              e = _error;
+              flError('data parsing failed');
+            }
+          } else {
+            flError('data fetch failed');
+          }
+          return cb(data);
+        }
+      });
+    };
+
+    Fishing_Helper_APIUtils.prototype.getLocation = function(locationId, cb) {
+      var location,
+        _this = this;
+      if (this.locationsFetched) {
+        location = this.globalData.locations[locationId];
+        return cb(location);
+      } else {
+        if (this.locationsFetching) {
+          return this.locationsFetchedCallbacks.push(function() {
+            return _this.getLocation(locationId, cb);
+          });
+        } else {
+          return this.getLocations(function() {
+            return _this.getLocation(locationId, cb);
+          });
+        }
+      }
+    };
+
+    Fishing_Helper_APIUtils.prototype.getLocations = function(cb) {
+      var _this = this;
+      if (this.locationsFetched) {
+        return cb(this.globalData.locations);
+      } else {
+        this.locationsFetching = true;
+        this.locationsFetchedCallbacks.push(cb);
+        return this.fetchData('locations', {}, function(responseData) {
+          _this.globalData.locations = responseData;
+          _this.locationsFetched = true;
+          _this.locationsFetching = false;
+          return _.each(_this.locationsFetchedCallbacks, function(locationsFetchedCallback) {
+            return locationsFetchedCallback(_this.globalData.locations);
+          });
+        });
+      }
+    };
+
+    return Fishing_Helper_APIUtils;
+
+  })();
+
+  Fishing.Helper.APIUtils = new Fishing_Helper_APIUtils();
+
+}).call(this);
+
+(function() {
+  var Fishing_Helper_Logger,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Fishing_Helper_Logger = (function() {
+    function Fishing_Helper_Logger() {
+      this.error = __bind(this.error, this);
+      this.log = __bind(this.log, this);
+    }
+
+    Fishing_Helper_Logger.prototype.log = function(msg, obj) {
+      if (!Fishing.Constants.loggingOn) {
+        return;
+      }
+      if (Fishing.Helper.Utils.isUndefined(obj)) {
+        return console.log(msg);
+      } else {
+        return console.log(msg, obj);
+      }
+    };
+
+    Fishing_Helper_Logger.prototype.error = function(msg, obj) {
+      if (!Fishing.Constants.loggingOn) {
+        return;
+      }
+      if (Fishing.Helper.Utils.isUndefined(obj)) {
+        return console.error(msg);
+      } else {
+        return console.error(msg, obj);
+      }
+    };
+
+    return Fishing_Helper_Logger;
+
+  })();
+
+  Fishing.Helper.Logger = new Fishing_Helper_Logger();
+
+  window.flLog = Fishing.Helper.Logger.log;
+
+  window.flError = Fishing.Helper.Logger.error;
+
+}).call(this);
+
+(function() {
+  var Fishing_Helper_Utils,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Fishing_Helper_Utils = (function() {
+    function Fishing_Helper_Utils() {
+      this.isUndefined = __bind(this.isUndefined, this);
+    }
+
+    Fishing_Helper_Utils.prototype.capitalize = function(s) {
+      return s[0].toUpperCase() + s.slice(1);
+    };
+
+    Fishing_Helper_Utils.prototype.stringToFunction = function(str) {
       var arr, fn, i, _i, _ref;
       arr = str.split('.');
       fn = window;
@@ -28,18 +224,21 @@
         fn = fn[arr[i]];
       }
       return fn;
-    }
-  };
+    };
 
-}).call(this);
+    Fishing_Helper_Utils.prototype.isUndefined = function(input) {
+      if (typeof input === 'undefined') {
+        return true;
+      } else {
+        return false;
+      }
+    };
 
-(function() {
-  Fishing.Constants = {
-    api: {
-      domain: 'localhost',
-      port: 8080
-    }
-  };
+    return Fishing_Helper_Utils;
+
+  })();
+
+  Fishing.Helper.Utils = new Fishing_Helper_Utils();
 
 }).call(this);
 
@@ -65,6 +264,7 @@
 
     Router.prototype.routes = {
       '': 'default',
+      'home': 'home',
       'report/:locationId': 'report'
     };
 
@@ -80,10 +280,10 @@
 
     Router.prototype.setupMainLayout = function() {
       if (!this.mainLayout) {
-        this.mainLayout = new Fishing.View.MainLayout({
-          el: $('#fishingApp')
+        return this.mainLayout = new Fishing.View.MainLayout({
+          name: 'mainLayout',
+          elSelector: '#fishingApp'
         });
-        return this.mainLayout.name = 'mainLayout';
       }
     };
 
@@ -123,9 +323,12 @@
       this.getTemplateSource = __bind(this.getTemplateSource, this);
       this.getTemplateName = __bind(this.getTemplateName, this);
       this.renderSubViews = __bind(this.renderSubViews, this);
+      this.initialize = __bind(this.initialize, this);
       this.getTemplateData = __bind(this.getTemplateData, this);
       this.postRender = __bind(this.postRender, this);
       this.preRender = __bind(this.preRender, this);
+      this.postInitialize = __bind(this.postInitialize, this);
+      this.preInitialize = __bind(this.preInitialize, this);
       _ref = Base.__super__.constructor.apply(this, arguments);
       return _ref;
     }
@@ -136,6 +339,10 @@
 
     Base.prototype.name = '';
 
+    Base.prototype.preInitialize = function() {};
+
+    Base.prototype.postInitialize = function() {};
+
     Base.prototype.preRender = function() {};
 
     Base.prototype.postRender = function() {};
@@ -144,9 +351,20 @@
       return {};
     };
 
+    Base.prototype.initialize = function(data) {
+      var element,
+        _this = this;
+      this.preInitialize();
+      _.each(data, function(datumValue, datumKey) {
+        return _this.set(datumKey, datumValue);
+      });
+      element = $(this.elSelector);
+      this.setElement(element);
+      return this.postInitialize();
+    };
+
     Base.prototype.renderSubViews = function() {
       var _this = this;
-      console.log('renderSubViews, count: ' + this.subViews.length);
       return _.each(this.subViews, function(subView) {
         return subView.render();
       });
@@ -163,9 +381,12 @@
     };
 
     Base.prototype.renderTemplate = function() {
-      var html, source;
+      var data, element, html, source;
       source = this.getTemplateSource();
-      html = source(this.getTemplateData());
+      data = this.getTemplateData();
+      html = source(data);
+      element = $(this.elSelector);
+      this.setElement(element);
       return this.$el.html(html);
     };
 
@@ -178,19 +399,13 @@
     };
 
     Base.prototype.addSubViewByDefinition = function(subViewDefinition, data) {
-      var element, selector, subView, subViewClass, subViewClassName,
-        _this = this;
+      var subView, subViewClass, subViewClassName;
       data = data || {};
       data.name = subViewDefinition.name;
-      subViewClassName = 'Fishing.View.' + Fishing.Util.capitalize(data.name);
-      subViewClass = Fishing.Util.stringToFunction(subViewClassName);
-      subView = new subViewClass();
-      _.each(data, function(datumValue, datumKey) {
-        return subView.set(datumKey, datumValue);
-      });
-      selector = subViewDefinition.elSelector;
-      element = this.isGlobalView ? $(selector) : this.$(selector);
-      subView.setElement(element);
+      data.elSelector = subViewDefinition.elSelector;
+      subViewClassName = 'Fishing.View.' + Fishing.Helper.Utils.capitalize(data.name);
+      subViewClass = Fishing.Helper.Utils.stringToFunction(subViewClassName);
+      subView = new subViewClass(data);
       return this.addSubView(subView);
     };
 
@@ -222,6 +437,69 @@
 
 (function() {
   var _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Fishing.View.Home = (function(_super) {
+    __extends(Home, _super);
+
+    function Home() {
+      this.drawMap = __bind(this.drawMap, this);
+      this.postRender = __bind(this.postRender, this);
+      this.getTemplateData = __bind(this.getTemplateData, this);
+      _ref = Home.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    Home.prototype.googleMap = null;
+
+    Home.prototype.getTemplateData = function() {
+      return {
+        appName: Fishing.Constants.appName
+      };
+    };
+
+    Home.prototype.postRender = function() {
+      return this.drawMap();
+    };
+
+    Home.prototype.drawMap = function() {
+      var element, mapCenter, options,
+        _this = this;
+      mapCenter = Fishing.Constants.homeMap.center;
+      options = {
+        center: new google.maps.LatLng(mapCenter.latitude, mapCenter.longitude),
+        zoom: Fishing.Constants.homeMap.zoomLevel
+      };
+      element = document.getElementById('homeMap');
+      this.googleMap = new google.maps.Map(element, options);
+      return Fishing.Helper.APIUtils.getLocations(function(locations) {
+        return _.each(locations, function(location) {
+          var latLng, marker;
+          latLng = new google.maps.LatLng(location.latitude, location.longitude);
+          marker = new google.maps.Marker({
+            position: latLng,
+            map: _this.googleMap
+          });
+          return google.maps.event.addListener(marker, 'click', function() {
+            return Fishing.Global.router.navigate('report/' + location.locationId, {
+              trigger: true
+            });
+          });
+        });
+      });
+    };
+
+    return Home;
+
+  })(Fishing.View.Base);
+
+}).call(this);
+
+(function() {
+  var _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -229,9 +507,16 @@
     __extends(MainLayout, _super);
 
     function MainLayout() {
+      this.getTemplateData = __bind(this.getTemplateData, this);
       _ref = MainLayout.__super__.constructor.apply(this, arguments);
       return _ref;
     }
+
+    MainLayout.prototype.getTemplateData = function() {
+      return {
+        appName: Fishing.Constants.appName
+      };
+    };
 
     return MainLayout;
 
@@ -249,47 +534,133 @@
     __extends(Report, _super);
 
     function Report() {
+      this.drawPrecipitationDataChart = __bind(this.drawPrecipitationDataChart, this);
+      this.drawUSGSDataCharts = __bind(this.drawUSGSDataCharts, this);
+      this.drawChart = __bind(this.drawChart, this);
+      this.getPrecipitationDataArray = __bind(this.getPrecipitationDataArray, this);
+      this.getUSGSDataArray = __bind(this.getUSGSDataArray, this);
+      this.getUSGSGageHeightDataArray = __bind(this.getUSGSGageHeightDataArray, this);
+      this.getUSGSFlowRateDataArray = __bind(this.getUSGSFlowRateDataArray, this);
+      this.getChartTitle = __bind(this.getChartTitle, this);
       this.fetchLocationData = __bind(this.fetchLocationData, this);
       this.postRender = __bind(this.postRender, this);
       this.postInitialize = __bind(this.postInitialize, this);
+      this.getTemplateData = __bind(this.getTemplateData, this);
       _ref = Report.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
     Report.prototype.location = null;
 
-    Report.prototype.reportData = null;
+    Report.prototype.usgsData = null;
+
+    Report.prototype.precipitationData = null;
+
+    Report.prototype.getTemplateData = function() {
+      return {
+        location: this.location.attributes
+      };
+    };
 
     Report.prototype.postInitialize = function() {
-      var location;
-      return location = new Fishing.Model.Location();
+      this.location = new Fishing.Model.Location();
+      this.location.on('change', this.render);
+      return this.fetchLocationData();
     };
 
     Report.prototype.postRender = function() {
-      return this.fetchLocationData();
+      if (this.usgsData !== null) {
+        this.drawUSGSDataCharts();
+      }
+      if (this.precipitationData !== null) {
+        return this.drawPrecipitationDataChart();
+      }
     };
 
     Report.prototype.fetchLocationData = function() {
       var _this = this;
-      console.log('fetching data for locationId: ' + this.locationId);
-      $.ajax({
-        url: '/api/reportData',
-        data: {
-          locationId: this.locationId
-        },
-        success: function(response) {
-          return console.log('success, response: ', response);
+      Fishing.Helper.APIUtils.fetchData('location', {
+        locationId: this.locationId
+      }, function(responseData) {
+        return _this.location.set(responseData);
+      });
+      Fishing.Helper.APIUtils.fetchData('usgsData', {
+        locationId: this.locationId
+      }, function(responseData) {
+        _this.usgsData = responseData;
+        return _this.drawUSGSDataCharts();
+      });
+      return Fishing.Helper.APIUtils.fetchData('precipitationData', {
+        locationId: this.locationId
+      }, function(responseData) {
+        _this.precipitationData = responseData;
+        return _this.drawPrecipitationDataChart();
+      });
+    };
+
+    Report.prototype.getChartTitle = function() {
+      return 'Stream flow';
+    };
+
+    Report.prototype.getUSGSFlowRateDataArray = function() {
+      return this.getUSGSDataArray(Fishing.Constants.paramIds.flowRate);
+    };
+
+    Report.prototype.getUSGSGageHeightDataArray = function() {
+      return this.getUSGSDataArray(Fishing.Constants.paramIds.gageHeight);
+    };
+
+    Report.prototype.getUSGSDataArray = function(paramId) {
+      var data,
+        _this = this;
+      data = [['Date/Time', 'Flow']];
+      _.each(this.usgsData, function(datum) {
+        var datumForArray;
+        if (datum.paramId === paramId) {
+          datumForArray = [datum.localDateTime, parseFloat(datum.value)];
+          return data.push(datumForArray);
         }
       });
-      return $.ajax({
-        url: '/api/location',
-        data: {
-          locationId: this.locationId
-        },
-        success: function(response) {
-          return location.set(response);
-        }
+      return data;
+    };
+
+    Report.prototype.getPrecipitationDataArray = function() {
+      var data,
+        _this = this;
+      data = [['Date', 'Precipitation (inches)']];
+      _.each(this.precipitationData, function(datum) {
+        var datumForArray;
+        datumForArray = [datum.date, parseFloat(datum.precipitationInches)];
+        return data.push(datumForArray);
       });
+      return data;
+    };
+
+    Report.prototype.drawChart = function(dataArray, title, elementId) {
+      var chart, chartElement, data, options;
+      if (dataArray.length < 2) {
+        flLog('empty data for chart: ' + title);
+        return;
+      }
+      data = google.visualization.arrayToDataTable(dataArray);
+      options = {
+        title: title,
+        curveType: 'function',
+        legend: {
+          position: 'bottom'
+        }
+      };
+      chartElement = document.getElementById(elementId);
+      chart = new google.visualization.LineChart(chartElement);
+      return chart.draw(data, options);
+    };
+
+    Report.prototype.drawUSGSDataCharts = function() {
+      return this.drawChart(this.getUSGSGageHeightDataArray(), 'Gage Height', 'usgsGageHeightChart');
+    };
+
+    Report.prototype.drawPrecipitationDataChart = function() {
+      return this.drawChart(this.getPrecipitationDataArray(), 'Precipitation', 'precipitationDataChart');
     };
 
     return Report;
@@ -314,5 +685,24 @@
     return Base;
 
   })(Backbone.Model);
+
+}).call(this);
+
+(function() {
+  var _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Fishing.Model.Location = (function(_super) {
+    __extends(Location, _super);
+
+    function Location() {
+      _ref = Location.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    return Location;
+
+  })(Fishing.Model.Base);
 
 }).call(this);

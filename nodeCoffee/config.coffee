@@ -5,3 +5,4 @@ module.exports =
     password: 'fish#$man'
     database: 'fishing'
   listenPort: 8080
+  defaultReportDays: 10

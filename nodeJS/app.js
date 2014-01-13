@@ -24,11 +24,20 @@
     app.get('/', function(req, res) {
       return res.sendfile('public/view/main.html');
     });
-    app.get('/api/reportData', function(req, res) {
-      return routeAPI.reportData(req, res);
+    app.get('/pratt', function(req, res) {
+      return res.sendfile('public/view/pratt.html');
+    });
+    app.get('/api/usgsData', function(req, res) {
+      return routeAPI.usgsData(req, res);
+    });
+    app.get('/api/precipitationData', function(req, res) {
+      return routeAPI.precipitationData(req, res);
     });
     app.get('/api/location', function(req, res) {
       return routeAPI.location(req, res);
+    });
+    app.get('/api/locations', function(req, res) {
+      return routeAPI.locations(req, res);
     });
     listenPort = config.listenPort;
     return app.listen(listenPort, function() {

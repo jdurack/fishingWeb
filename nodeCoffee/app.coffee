@@ -19,11 +19,20 @@ init = () =>
   app.get '/', (req, res) ->
     res.sendfile 'public/view/main.html'
 
-  app.get '/api/reportData', (req, res) ->
-    routeAPI.reportData req, res
+  app.get '/pratt', (req, res) ->
+    res.sendfile 'public/view/pratt.html'
+
+  app.get '/api/usgsData', (req, res) ->
+    routeAPI.usgsData req, res
+
+  app.get '/api/precipitationData', (req, res) ->
+    routeAPI.precipitationData req, res
 
   app.get '/api/location', (req, res) ->
-    routeAPI.location req, res 
+    routeAPI.location req, res
+
+  app.get '/api/locations', (req, res) ->
+    routeAPI.locations req, res
 
   listenPort = config.listenPort
   app.listen listenPort, () ->

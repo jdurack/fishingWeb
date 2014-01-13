@@ -5,13 +5,22 @@ class Fishing.View.Base extends Backbone.View
   name: ''
 
   #over-writeable...
+  preInitialize: =>
+  postInitialize: =>
   preRender: =>
   postRender: =>
   getTemplateData: =>
     {}
 
+  initialize: (data) =>
+    @preInitialize()
+    _.each data, (datumValue, datumKey) =>
+      @set datumKey, datumValue
+    element = $ @elSelector
+    @setElement element
+    @postInitialize()
+
   renderSubViews: =>
-    console.log 'renderSubViews, count: ' + @subViews.length
     _.each @subViews, (subView) =>
       subView.render()
 
@@ -24,7 +33,10 @@ class Fishing.View.Base extends Backbone.View
 
   renderTemplate: =>
     source = @getTemplateSource()
-    html = source @getTemplateData()
+    data = @getTemplateData()
+    html = source data
+    element = $ @elSelector
+    @setElement element
     @$el.html html
 
   addSubView: (subView) =>
@@ -36,15 +48,10 @@ class Fishing.View.Base extends Backbone.View
   addSubViewByDefinition: (subViewDefinition, data) =>
     data = data || {}
     data.name = subViewDefinition.name
-    subViewClassName = 'Fishing.View.' + Fishing.Util.capitalize( data.name )
-    subViewClass = Fishing.Util.stringToFunction subViewClassName
-    subView = new subViewClass()
-    _.each data, (datumValue, datumKey) =>
-      subView.set datumKey, datumValue
-    selector = subViewDefinition.elSelector
-    element = if @isGlobalView then $(selector) else @$(selector)
-    #console.log 'selector: ' + selector + ', element: ' , element
-    subView.setElement element
+    data.elSelector = subViewDefinition.elSelector
+    subViewClassName = 'Fishing.View.' + Fishing.Helper.Utils.capitalize( data.name )
+    subViewClass = Fishing.Helper.Utils.stringToFunction subViewClassName
+    subView = new subViewClass data
     @addSubView subView
 
   render: =>

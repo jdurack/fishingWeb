@@ -6,7 +6,8 @@
       password: 'fish#$man',
       database: 'fishing'
     },
-    listenPort: 8080
+    listenPort: 8080,
+    defaultReportDays: 10
   };
 
 }).call(this);

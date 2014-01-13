@@ -4,6 +4,7 @@ class Fishing.Router extends Backbone.Router
 
   routes:
     '': 'default'
+    'home': 'home'
     'report/:locationId': 'report'
 
   default: () =>
@@ -16,8 +17,8 @@ class Fishing.Router extends Backbone.Router
   setupMainLayout: =>
     if not @mainLayout
       @mainLayout = new Fishing.View.MainLayout
-        el: $('#fishingApp')
-      @mainLayout.name = 'mainLayout'
+        name: 'mainLayout'
+        elSelector: '#fishingApp'
     
   renderPage: (page, data) =>
     @setupMainLayout()
