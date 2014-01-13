@@ -47,7 +47,7 @@
     loggingOn: true,
     api: {
       domain: 'localhost',
-      port: 5000
+      port: 8080
     },
     paramIds: {
       flowRate: 1,
