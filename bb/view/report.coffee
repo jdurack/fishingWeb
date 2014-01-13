@@ -40,14 +40,14 @@ class Fishing.View.Report extends Fishing.View.Base
     'Stream flow'
 
   getUSGSFlowRateDataArray: =>
-    @getUSGSDataArray Fishing.Constants.paramIds.flowRate
+    @getUSGSDataArray Fishing.Constants.paramIds.flowRate, 'Stream Flow'
 
   getUSGSGageHeightDataArray: =>
-    @getUSGSDataArray Fishing.Constants.paramIds.gageHeight
+    @getUSGSDataArray Fishing.Constants.paramIds.gageHeight, 'Gage Height'
 
-  getUSGSDataArray: (paramId) =>
+  getUSGSDataArray: (paramId, dataLabel) =>
     data = [
-      ['Date/Time', 'Flow']
+      ['Date/Time', dataLabel]
     ]
     _.each @usgsData, (datum) =>
       if datum.paramId is paramId

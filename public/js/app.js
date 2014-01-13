@@ -603,17 +603,17 @@
     };
 
     Report.prototype.getUSGSFlowRateDataArray = function() {
-      return this.getUSGSDataArray(Fishing.Constants.paramIds.flowRate);
+      return this.getUSGSDataArray(Fishing.Constants.paramIds.flowRate, 'Stream Flow');
     };
 
     Report.prototype.getUSGSGageHeightDataArray = function() {
-      return this.getUSGSDataArray(Fishing.Constants.paramIds.gageHeight);
+      return this.getUSGSDataArray(Fishing.Constants.paramIds.gageHeight, 'Gage Height');
     };
 
-    Report.prototype.getUSGSDataArray = function(paramId) {
+    Report.prototype.getUSGSDataArray = function(paramId, dataLabel) {
       var data,
         _this = this;
-      data = [['Date/Time', 'Flow']];
+      data = [['Date/Time', dataLabel]];
       _.each(this.usgsData, function(datum) {
         var datumForArray;
         if (datum.paramId === paramId) {
