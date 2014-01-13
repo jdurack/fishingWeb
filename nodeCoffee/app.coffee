@@ -34,7 +34,7 @@ init = () =>
   app.get '/api/locations', (req, res) ->
     routeAPI.locations req, res
 
-  listenPort = config.listenPort
+  listenPort = process.env.PORT || config.listenPort
   app.listen listenPort, () ->
     logger.log ['Listening on ' + listenPort]
 

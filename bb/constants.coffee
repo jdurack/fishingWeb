@@ -3,7 +3,7 @@ Fishing.Constants =
   loggingOn: true
   api:
     domain: 'localhost'
-    port: 8080
+    port: 5000
   paramIds:
     flowRate: 1
     gageHeight: 2

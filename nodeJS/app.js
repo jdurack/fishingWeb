@@ -39,7 +39,7 @@
     app.get('/api/locations', function(req, res) {
       return routeAPI.locations(req, res);
     });
-    listenPort = config.listenPort;
+    listenPort = process.env.PORT || config.listenPort;
     return app.listen(listenPort, function() {
       return logger.log(['Listening on ' + listenPort]);
     });
