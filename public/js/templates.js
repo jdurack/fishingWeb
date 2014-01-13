@@ -41,6 +41,6 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 
   buffer += "Location: "
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.location)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\n<!--\n<div id=\"usgsFlowRateChart\" class=\"dataChart\"style=\"width: 900px; height: 500px;\"></div>\n-->\n<div id=\"usgsGageHeightChart\" style=\"width: 900px; height: 500px;\"></div>\n<div id=\"precipitationDataChart\" style=\"width: 900px; height: 500px;\"></div>";
+    + "\n<!--\n<div id='usgsFlowRateChart' class='dataChart'></div>\n-->\n<div id='usgsGageHeightChart' class='dataChart'></div>\n<div id='precipitationDataChart' class='dataChart'></div>";
   return buffer;
   });

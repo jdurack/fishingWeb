@@ -13,6 +13,10 @@ module.exports = (grunt) =>
           'vendor/js/googleMaps.min.js'
         ]
         dest: 'public/js/vendor.js'
+    uglify:
+      vendor:
+        files:
+          'public/js/vendor.min.js': 'public/js/vendor.js'
     coffee:
       bb:
         src: [
@@ -39,6 +43,10 @@ module.exports = (grunt) =>
           namespace: 'Fishing.Template'
         files:
           'public/js/templates.js': ['bb/template/*.html']
+    less:
+      app:
+        files:
+          'public/css/app.css': 'less/*.less'
     watch:
       bbCoffee:
         files: 'bb/**/*.coffee'
@@ -49,10 +57,23 @@ module.exports = (grunt) =>
       templates:
         files: 'bb/template/**/*.html'
         tasks: ['handlebars:templates']
+      less:
+        files: 'less/*.less'
+        tasks: ['less']
 
   grunt.loadNpmTasks 'grunt-contrib-concat'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-handlebars'
+  grunt.loadNpmTasks 'grunt-contrib-less'
+  grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-watch'
 
-  grunt.registerTask 'default', ['concat:vendor','coffee:bb','coffee:node','handlebars:templates','watch']
+  grunt.registerTask 'default', [
+      'concat:vendor'
+    , 'uglify:vendor'
+    , 'coffee:bb'
+    , 'coffee:node'
+    , 'handlebars:templates'
+    , 'less'
+    , 'watch'
+  ]
