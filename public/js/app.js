@@ -254,6 +254,7 @@
     function Router() {
       this.renderPage = __bind(this.renderPage, this);
       this.setupMainLayout = __bind(this.setupMainLayout, this);
+      this.sampleReport = __bind(this.sampleReport, this);
       this.report = __bind(this.report, this);
       this["default"] = __bind(this["default"], this);
       _ref = Router.__super__.constructor.apply(this, arguments);
@@ -265,7 +266,8 @@
     Router.prototype.routes = {
       '': 'default',
       'home': 'home',
-      'report/:locationId': 'report'
+      'report/:locationId': 'report',
+      'sampleReport': 'sampleReport'
     };
 
     Router.prototype["default"] = function() {
@@ -276,6 +278,10 @@
       return this.renderPage('report', {
         locationId: locationId
       });
+    };
+
+    Router.prototype.sampleReport = function() {
+      return this.renderPage('sampleReport');
     };
 
     Router.prototype.setupMainLayout = function() {
@@ -664,6 +670,25 @@
     };
 
     return Report;
+
+  })(Fishing.View.Base);
+
+}).call(this);
+
+(function() {
+  var _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Fishing.View.SampleReport = (function(_super) {
+    __extends(SampleReport, _super);
+
+    function SampleReport() {
+      _ref = SampleReport.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    return SampleReport;
 
   })(Fishing.View.Base);
 

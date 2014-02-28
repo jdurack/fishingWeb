@@ -1,0 +1,1 @@
+class Fishing.View.SampleReport extends Fishing.View.Base

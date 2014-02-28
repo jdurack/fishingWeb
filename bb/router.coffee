@@ -6,6 +6,7 @@ class Fishing.Router extends Backbone.Router
     '': 'default'
     'home': 'home'
     'report/:locationId': 'report'
+    'sampleReport': 'sampleReport'
 
   default: () =>
     @renderPage 'home'
@@ -13,6 +14,9 @@ class Fishing.Router extends Backbone.Router
   report: (locationId) =>
     @renderPage 'report',
       locationId: locationId
+
+  sampleReport: =>
+    @renderPage 'sampleReport'
 
   setupMainLayout: =>
     if not @mainLayout
